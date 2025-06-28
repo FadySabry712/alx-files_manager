@@ -6,13 +6,11 @@ import Queue from 'bull';
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
 
-
 const fileQueue = new Queue('fileQueue', 'redis://127.0.0.1:6379');
 
-
 class FilesController {
-  static async getUser(request) {
-    const token = request.header('X-Token');
+  static async getUser(req) {
+    const token = req.header('X-Token');
     const key = `auth_${token}`;
     const userId = await redisClient.get(key);
     if (userId) {
@@ -86,7 +84,7 @@ class FilesController {
         try {
           await fs.mkdir(filePath);
         } catch (error) {
-          // pass. Error raised when file already exists
+	  // pass if it exists
         }
         await fs.writeFile(fileName, buff, 'utf-8');
       } catch (error) {
@@ -125,7 +123,6 @@ class FilesController {
     return null;
   }
 
-
   static async getShow(request, response) {
     const user = await FilesController.getUser(request);
     if (!user) {
@@ -140,7 +137,6 @@ class FilesController {
     }
     return response.status(200).json(file);
   }
-
 
   static async getIndex(request, response) {
     const user = await FilesController.getUser(request);
@@ -190,7 +186,6 @@ class FilesController {
     return null;
   }
 
-
   static async putPublish(request, response) {
     const user = await FilesController.getUser(request);
     if (!user) {
@@ -210,7 +205,6 @@ class FilesController {
     return null;
   }
 
-
   static async putUnpublish(request, response) {
     const user = await FilesController.getUser(request);
     if (!user) {
@@ -229,7 +223,6 @@ class FilesController {
     });
     return null;
   }
-
 
   static async getFile(request, response) {
     const { id } = request.params;
@@ -286,7 +279,5 @@ class FilesController {
     });
   }
 }
-
-
 
 module.exports = FilesController;

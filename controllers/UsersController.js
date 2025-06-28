@@ -4,9 +4,7 @@ import Queue from 'bull';
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
 
-
 const userQueue = new Queue('userQueue', 'redis://127.0.0.1:6379');
-
 
 class UsersController {
   static postNew(request, response) {
@@ -41,10 +39,8 @@ class UsersController {
     });
   }
 
-
-
-  static async getMe(request, response) {
-    const token = request.header('X-Token');
+  static async getMe(req, res) {
+    const token = req.header('X-Token');
     const key = `auth_${token}`;
     const userId = await redisClient.get(key);
     if (userId) {
@@ -52,14 +48,14 @@ class UsersController {
       const idObject = new ObjectID(userId);
       users.findOne({ _id: idObject }, (err, user) => {
         if (user) {
-          response.status(200).json({ id: userId, email: user.email });
+          res.status(200).json({ id: userId, email: user.email });
         } else {
-          response.status(401).json({ error: 'Unauthorized' });
+          res.status(401).json({ error: 'Unauthorized' });
         }
       });
     } else {
       console.log('Hupatikani!');
-      response.status(401).json({ error: 'Unauthorized' });
+      res.status(401).json({ error: 'Unauthorized' });
     }
   }
 }
